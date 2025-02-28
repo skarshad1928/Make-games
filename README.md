@@ -1,5 +1,5 @@
 # Make-games
-Learning Strategy
+SOS-7 me comp 8
 def is_win():
     # Check rows
     for i in range(3):
