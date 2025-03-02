@@ -1,0 +1,103 @@
+ import random
+
+# Define Suits and Ranks
+suits = ("Heart", "Diamond", "Spade", "Clubs")
+ranks = ("ace", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king")
+
+# Assign Values to Cards
+values = {
+    "ace": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "jack": 11, "queen": 12, "king": 13
+}
+
+# Card Class
+class Card:
+    def __init__(self, suit, rank):
+        self.suit = suit
+        self.rank = rank
+        self.value = values[rank]  # Assign value based on rank
+
+    def __str__(self):
+        return f"{self.rank} of {self.suit}"
+
+
+# Deck Class
+class Deck:
+    def __init__(self):
+        self.all_cards = [Card(suit, rank) for suit in suits for rank in ranks]
+        self.shuffle_card()
+
+    def shuffle_card(self):
+        """Shuffles the deck."""
+        random.shuffle(self.all_cards)
+
+    def distribute_cards(self, num_cards):
+        """Distributes a specific number of cards and removes them from the deck."""
+        if num_cards > len(self.all_cards):
+            return []  # If not enough cards, return empty list
+        distributed = self.all_cards[:num_cards]
+        self.all_cards = self.all_cards[num_cards:]
+        return distributed
+
+
+# Player Class
+class Player:
+    def __init__(self, name, player_id, deck, num_cards=5):
+        """Player receives a name, ID, and a deck from which they receive cards."""
+        self.name = name
+        self.player_id = player_id
+        self.mycards = deck.distribute_cards(num_cards)
+
+    def show_cards(self):
+        """Display the player's cards."""
+        return [str(card) for card in self.mycards]
+
+    def play_card(self):
+        """Player plays the first card from their hand."""
+        if self.mycards:
+            return self.mycards.pop(0)
+        return None  # If no cards left, return None
+
+
+# Game Logic
+def play_game(player1, player2):
+    print("\nStarting the game!\n")
+    round_num = 1
+
+    while player1.mycards and player2.mycards:
+        print(f"Round {round_num}:")
+        card1 = player1.play_card()
+        card2 = player2.play_card()
+
+        print(f"{player1.name} plays: {card1}")
+        print(f"{player2.name} plays: {card2}")
+
+        if card1.value > card2.value:
+            print(f"{player1.name} wins this round!\n")
+        elif card1.value < card2.value:
+            print(f"{player2.name} wins this round!\n")
+        else:
+            print("It's a tie!\n")
+
+        round_num += 1
+
+    # Determine winner based on remaining cards
+    if len(player1.mycards) > len(player2.mycards):
+        print(f"{player1.name} wins the game!")
+    elif len(player1.mycards) < len(player2.mycards):
+        print(f"{player2.name} wins the game!")
+    else:
+        print("The game ends in a draw!")
+
+# Simulation
+deck = Deck()
+player1 = Player("Arshad", 101, deck, num_cards=5)
+player2 = Player("Arshad2", 102, deck, num_cards=5)
+
+print(f"\n{player1.name}'s Cards:")
+print(player1.show_cards())
+
+print(f"\n{player2.name}'s Cards:")
+print(player2.show_cards())
+
+play_game(player1, player2)
