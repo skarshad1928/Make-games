@@ -1,60 +1,64 @@
-# import numpy as np random as r
 import numpy as np
 import random as r
-list1=[0,0,0,0,0,0,0,0,0]
-zero3c3=np.array(list1)
-z3c3 = zero3c3.reshape(3,3)
-mat=[(x,y)for x in range(0,3) for y in range(0,3)]
-def valid_position(x,y):
-    # check whether they are in range
-    if 0<=x<=2 and 0<=y<=2:
-        return True
-    return False
+
+# Initialize board with strings
+z3c3 = np.full((3, 3), "0")
+mat = [(x, y) for x in range(3) for y in range(3)]
+
+def valid_position(x, y):
+    return 0 <= x <= 2 and 0 <= y <= 2
+
 def Take_input():
-    #take input from user
-    x, y = map(int, input("Enter your x and y: ").split(","))
-    if valid_position(x,y)and (x,y) in mat:
-        #whether user replaced number with7
-        z3c3[x][y] = 7
-        mat.remove((x,y))
-    else:
-        take_input()
+    while True:
+        try:
+            coords = input("Enter your x and y (0-2, comma separated): ").strip()
+            x, y = map(int, coords.split(","))
+            if valid_position(x, y) and (x, y) in mat:
+                z3c3[x][y] = "H"
+                mat.remove((x, y))
+                break
+            else:
+                print("Invalid or already taken position. Try again.")
+        except Exception as e:
+            print("Invalid format. Enter as x,y (e.g., 1,2)")
+
 def take_assighn():
-    #ASSIGHN BY SYS
-    if len(mat)==0:
+    if len(mat) == 0:
         return
-    (t,p)=r.choice(mat)
-    z3c3[t][p]=8
-    print(f"({t},{p}) position assighned 8")
-    mat.remove((t,p))
+    (t, p) = r.choice(mat)
+    z3c3[t][p] = "C"
+    print(f"Computer chose: ({t},{p})")
+    mat.remove((t, p))
+
 def is_win():
-    # Check rows,columns,diagnols
     for i in range(3):
-        if len(set(z3c3[i])) == 1 and z3c3[i, 0] != 0:
+        if len(set(z3c3[i])) == 1 and z3c3[i][0] != "0":
+            return True
+        if len(set(z3c3[:, i])) == 1 and z3c3[0][i] != "0":
             return True
 
-   for i in range(3):
-        if len(set(z3c3[:, i])) == 1 and z3c3[0, i] != 0:
-            return True
-   if len(set(z3c3[i, i] for i in range(3))) == 1 and z3c3[0, 0] != 0:
+    if len(set([z3c3[i][i] for i in range(3)])) == 1 and z3c3[0][0] != "0":
+        return True
+    if len(set([z3c3[i][2 - i] for i in range(3)])) == 1 and z3c3[0][2] != "0":
         return True
 
-   if len(set(z3c3[i, 2 - i] for i in range(3))) == 1 and z3c3[0, 2] != 0:
-        return True
-   return False
+    return False
 
-    
 def game_start():
-    while (len(mat)!=0):
-    #TAKE INPUT
+    print("Welcome to Tic-Tac-Toe (You = H, Computer = C)")
+    while len(mat) != 0:
         Take_input()
         print(z3c3)
         if is_win():
-            print("you win")
+            print("🎉 Haji win!")
             return
+        if len(mat) == 0:
+            break
         take_assighn()
         print(z3c3)
         if is_win():
-            print("comp win")
+            print("🤖 Computer wins!")
             return
+    print("It's a draw!")
+
 game_start()
