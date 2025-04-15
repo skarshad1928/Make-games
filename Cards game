@@ -1,19 +1,16 @@
 import random
 
-# Define Suits and Ranks
 suits = ("Heart", "Diamond", "Spade", "Clubs")
 ranks = (
     "ace", "two", "three", "four", "five", "six", "seven",
     "eight", "nine", "ten", "jack", "queen", "king"
 )
 
-# Assign Values to Cards
 values = {
     "ace": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
     "seven": 7, "eight": 8, "nine": 9, "ten": 10, "jack": 11, "queen": 12, "king": 13
 }
 
-# Card Class
 class Card:
     def __init__(self, suit, rank):
         self.suit = suit
@@ -23,7 +20,6 @@ class Card:
     def __str__(self):
         return f"{self.rank.capitalize()} of {self.suit}"
 
-# Deck Class
 class Deck:
     def __init__(self):
         self.all_cards = [Card(suit, rank) for suit in suits for rank in ranks]
@@ -39,7 +35,6 @@ class Deck:
         self.all_cards = self.all_cards[num_cards:]
         return distributed
 
-# Player Class
 class Player:
     def __init__(self, name, player_id, deck, num_cards=5):
         self.name = name
@@ -51,41 +46,52 @@ class Player:
 
     def play_card(self):
         if self.mycards:
-            random_card = random.choice(self.mycards)
+            random_card = self.mycards[-1]
             self.mycards.remove(random_card)
             return random_card
         return None
 
-# Game Logic
-def play_game(player1, player2):
-    if not player1.mycards or not player2.mycards:
-        if len(player2.mycards) == 0:
-            print(f"🏆 {player1.name} wins the game!")
-        else:
-            print(f"🏆 {player2.name} wins the game!")
+def play_game(player1, player2, itr, cards_in_play):
+    if len(player1.mycards) == 0 or len(player2.mycards) == 0:
         return "stop"
 
     card1 = player1.play_card()
     card2 = player2.play_card()
-    cards_in_play = [card1, card2]
 
+    print(f"\nRound {itr + 1}")
     print(f"{player1.name} plays: {card1}")
     print(f"{player2.name} plays: {card2}")
 
-    if card1.value <  card2.value :
-        print(f"✅ {player1.name} wins the round!\n")
-        player1.mycards.extend(cards_in_play)
+    cards_in_play.extend([card1, card2])
+
+    if itr == 0 or len(cards_in_play) <= 2:
+        if card1.value < card2.value:
+            print(f"{player2.name} wins this round and takes the cards in play.")
+            player2.mycards.extend(cards_in_play)
+            cards_in_play.clear()
+        elif card1.value > card2.value:
+            print(f"{player1.name} wins this round and takes the cards in play.")
+            player1.mycards.extend(cards_in_play)
+            cards_in_play.clear()
+        else:
+            print("It's a tie. Cards stay in play for the next round.")
     else:
-        print(f"✅ {player2.name} wins the round!\n")
-        player2.mycards.extend(cards_in_play)
+        last_card = cards_in_play[-3]
+        if card1.value > last_card.value:
+            print(f"{player1.name}'s card beats the last in play ({last_card}). Takes all!")
+            player1.mycards.extend(cards_in_play)
+            cards_in_play.clear()
+        elif card1.value <= card2.value:
+            print(f"{player1.name}'s card isn't strong enough. {player2.name} takes all cards.")
+            player2.mycards.extend(cards_in_play)
+            cards_in_play.clear()
 
     return "continue"
 
-# Main Game Runner
 if __name__ == "__main__":
     deck = Deck()
     player1 = Player("Arshad", 101, deck, num_cards=26)
-    player2 = Player("Arshad2", 102, deck, num_cards=26)
+    player2 = Player("Haji", 102, deck, num_cards=26)
 
     print(f"\n{player1.name}'s Starting Cards:")
     print(player1.show_cards())
@@ -93,14 +99,23 @@ if __name__ == "__main__":
     print(f"\n{player2.name}'s Starting Cards:")
     print(player2.show_cards())
 
-    round_num = 1
-    while play_game(player1, player2) == "continue":
-        print(f"📦 Round {round_num} Summary:")
-        print(f"{player1.name} has {len(player1.mycards)} cards.")
-        print(f"{player2.name} has {len(player2.mycards)} cards.\n")
-        round_num += 1
-        print(f"\n{player1.name}'s Final Cards:")
-        print(player1.show_cards())
+    cards_in_play = []
+    round_num = 0
 
-        print(f"\n{player2.name}'s Final Cards:")
-        print(player2.show_cards())
+    while True:
+        result = play_game(player1, player2, round_num, cards_in_play)
+        if result == "stop":
+            break
+        round_num += 1
+        print(f"\nSummary After Round {round_num}:")
+        print(f"{player1.name} has {len(player1.mycards)} cards.")
+        print(f"{player2.name} has {len(player2.mycards)} cards.")
+        print("Cards still in play pile:", [str(c) for c in cards_in_play])
+        print("-" * 50)
+
+print(len(player1.mycards))
+print(len(player2.mycards))
+set1 = set()
+for k in player2.mycards:
+    set1.add(k)
+print(len(set1))
